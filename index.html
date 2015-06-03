@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script data-main="scripts/main" src="bower_components/requirejs/require.js"></script>
+</head>
+<body>
+  <div>
+    <canvas id="a" width="500" height="500" style="border: 1px dotted grey;" ></canvas>
+  </div>
+  <div>
+    <button id="btn-load-reset">Load &amp; Reset</button>
+    <button id="btn-load-no-reset">Load</button>
+  </div>
+  <textarea id="map-data" style="width: 500px; height: 500px">
+    {
+      'nodes':[
+        { 't':'s', 'x':10, 'y':10 },
+        { 't':'n', 'x':60, 'y':60 },
+        { 't':'n', 'x':60, 'y':110 },
+        { 't':'t', 'x':110, 'y':10 }
+      ],
+      'edges':[
+        { 's': 0, 'e': 1 },
+        { 's': 1, 'e': 2 },
+        { 's': 2, 'e': 3 }
+      ]
+    }
+  </textarea>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "roundabout",
+  "version": "0.0.0",
+  "authors": [
+    "Sam Plews <the@codeite.com>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "description": "Roundabout Simulator",
+  "main": "index.html"
+}
