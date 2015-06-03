@@ -20,5 +20,5 @@ define(function () {
     }
 
     this.start.outbound.push(this);
-  }
+  };
 });

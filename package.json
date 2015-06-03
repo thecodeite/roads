@@ -7,14 +7,16 @@
     "start": "python -mSimpleHTTPServer",
     "test": "mocha tests",
     "test:dev": "mocha -w tests",
-    "build": "npm run build.npm && npm run build.bower",
-    "build.npm": "npm install",
-    "build.bower": "bower install"
+    "build": "npm run build:npm && npm run build:bower && npm run build:lint",
+    "build:npm": "npm install",
+    "build:bower": "bower install",
+    "build:lint": "jshint scripts/ || true"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "amdefine": "^0.1.0",
+    "jshint": "^2.8.0",
     "mocha": "^2.2.5",
     "requirejs": "^2.1.18"
   }

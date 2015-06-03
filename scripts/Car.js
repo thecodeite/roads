@@ -15,13 +15,13 @@ define(function () {
       var nextProgress = that.progress+1;
       var nextSpace = that.link.space[nextProgress];
     
-      if(nextSpace == null) {
+      if(nextSpace === null) {
         
         
         var outbounds = that.link.end.outbound;
 
-        if(outbounds.length == 0){
-          if(that.link.end.action == 'terminate'){
+        if(outbounds.length === 0){
+          if(that.link.end.action === 'terminate'){
              var i = world.elements.indexOf(that);
             if(i != -1) {
               world.elements.splice(i, 1);
@@ -32,7 +32,7 @@ define(function () {
 
         var nextLink = outbounds[~~(Math.random() * outbounds.length)];
         
-        if(nextLink.space[0].car == null){
+        if(nextLink.space[0].car === null){
           that.link = nextLink;
           nextProgress = 0;
           nextSpace = nextLink.space[0];
@@ -41,7 +41,7 @@ define(function () {
 
      
 
-      if(nextSpace && nextSpace.car == null) {
+      if(nextSpace && nextSpace.car === null) {
 
         thisSpace.car = null;
         nextSpace.car = that;
@@ -50,5 +50,5 @@ define(function () {
         that.progress = nextProgress;
       }
     };
-  }
+  };
 });

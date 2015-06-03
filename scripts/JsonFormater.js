@@ -1,4 +1,5 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module) }
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
+
 define(function () {
   'use strict';
 
@@ -11,7 +12,7 @@ define(function () {
     }
 
     function formatArray(obj, state) {
-      if(obj.length == 0) {
+      if(obj.length === 0) {
         state.child = 'empty-array';
         return {res: '[]', state: state};
       }
@@ -70,7 +71,7 @@ define(function () {
     }
 
     function formatObject(obj, state) {
-      if(Object.keys(obj).length == 0) {
+      if(Object.keys(obj).length === 0) {
         state.child = 'empty-object';
         return {res: '{}', state: state};
       }
@@ -151,6 +152,7 @@ define(function () {
           } else {
             return formatObject(obj, state);
           }
+          throw "Case of 'object' not defined";
         default:
           throw "Unknown object type: "+typeof(obj); 
       }
@@ -163,5 +165,5 @@ define(function () {
     return {
       format: format
     };
-  }
+  };
 });

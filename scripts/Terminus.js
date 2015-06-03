@@ -6,5 +6,5 @@ define(function () {
     this.outbound=[];
     this.action = 'terminate';
     this.colour = "#F00";
-  }
+  };
 });

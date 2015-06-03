@@ -3,5 +3,5 @@ define(function () {
     this.x = x;
     this.y = y;
     this.outbound=[];
-  }
+  };
 });

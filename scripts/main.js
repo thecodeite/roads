@@ -54,7 +54,9 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
 
   function loadData(resetElements) {
     var data = document.getElementById('map-data').value;
-    var data = new Function("return "+data)();
+
+    /*jslint evil: true */
+    data = new Function("return "+data)();
     
     if(resetElements) elements.length = 0;
 
@@ -78,8 +80,8 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
       if(resetElements) elements.push(edge.edge);
     });
 
-    data.nodes.forEach(function(node){ delete node.node});
-    data.edges.forEach(function(edge){ delete edge.edge});
+    data.nodes.forEach(function(node){ delete node.node;});
+    data.edges.forEach(function(edge){ delete edge.edge;});
 
     var formatter = new JsonFormater();
     document.getElementById('map-data').value = formatter.format(data);

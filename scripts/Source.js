@@ -9,8 +9,8 @@ define(["Car"], function (Car) {
       if(Math.random() > 0.90){
         var route = that.outbound[~~(Math.random() * that.outbound.length)];
 
-        world.elements.push(new Car(route))
+        world.elements.push(new Car(route));
       }
-    }
-  }
+    };
+  };
 });
