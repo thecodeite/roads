@@ -1,7 +1,7 @@
 {
   "name": "roundabout",
-  "description": "",
-  "repository": "",
+  "description": "A road sim",
+  "repository": "https://github.com/thecodeite/roundabout",
   "version": "1.0.0",
   "scripts": {
     "start": "python -mSimpleHTTPServer",
