@@ -6,7 +6,10 @@
   "scripts": {
     "start": "python -mSimpleHTTPServer",
     "test": "mocha tests",
-    "test:dev": "mocha -w tests"
+    "test:dev": "mocha -w tests",
+    "build": "npm run build.npm && npm run build.bower",
+    "build.npm": "npm install",
+    "build.bower": "bower install"
   },
   "author": "",
   "license": "ISC",
