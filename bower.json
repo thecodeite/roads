@@ -17,5 +17,8 @@
     "tests"
   ],
   "description": "Roundabout Simulator",
-  "main": "index.html"
+  "main": "index.html",
+  "dependencies": {
+    "lodash": "~3.9.3"
+  }
 }

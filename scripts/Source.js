@@ -5,11 +5,14 @@ define(["Car"], function (Car) {
     this.y = y;
     this.outbound=[];
     this.colour = "#0F0";
-    this.tick = function(world){
-      if(Math.random() > 0.90){
-        var route = that.outbound[~~(Math.random() * that.outbound.length)];
+    this.generated = false;
 
+    this.tick = function(world){
+      var route = that.outbound[~~(Math.random() * that.outbound.length)];
+      
+      if(route && route.space[0] && !route.space[0].car && Math.random() > 0.8){ 
         world.elements.push(new Car(route));
+        this.generated = true;
       }
     };
   };

@@ -1,39 +1,97 @@
 requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"], 
   function(Node, Source, Terminus, Car, Edge, JsonFormater) {
 
-  var canvas = document.getElementById('a');
+  var canvas = document.getElementById('main-canvas');
   var context = canvas.getContext("2d");
+  var formatter = new JsonFormater();
 
+  canvas.addEventListener("mousedown", doMouseDown, false);
   var elements = [];
   var world = {
     elements: elements
   };
 
-/*
-  var source1 = new Source(10, 10);
-  elements.push(source1);
+  var selected = null;
 
-  var node1 = new Node(60, 60);
-  var node2 = new Node(60, 110);
+  function doMouseDown(event) {
+    if(event.button == 2){
+      selectNode(null);
+      return;
+    }
 
-  elements.push(node1);
-  elements.push(node2);
+    var x = event.pageX - this.offsetLeft;
+    var y = event.pageY - this.offsetTop;
 
-  var terminus1 = new Node(110, 10);
-  elements.push(terminus1);
+    var clickedOn = _.find(elements, function(node){
+      return node.x+5 >= x 
+      && node.x-1 <= x
+      && node.y+5 >= y 
+      && node.y-1 <= y;
+    });
 
-  var link1 = new Link(source1, node1);
-  var link2 = new Link(node1, node2);
-  var link3 = new Link(node2, source1);
-  var link4 = new Link(node2, terminus1);
+    if(clickedOn){
+      if(selected) {
+        if(clickedOn != selected) {
+          addEdge(selected, clickedOn);
+          selectNode(clickedOn);
+        }
+      } else {
+        selectNode(clickedOn);
+        console.log('Selected a node');
+      }
+    } else {
+      if(selected) {
+        console.log('Un-selected a node');
+        selectNode(null);
+      } else {
+        addNode(x,y);
+      }
+    }
 
-  elements.push(link1);
-  elements.push(link2);
-  elements.push(link3);
-  elements.push(link4);
+    console.log('Found', clickedOn);
+    return;
+  }
 
-  elements.push(new Car(link1));
-*/
+  function selectNode(node) {
+    if(selected){
+      selected.selected = undefined;
+    }
+    selected = node;
+    if(selected){
+      selected.selected = true;
+    }
+  }
+
+  function addEdge(start, end) {
+    var edge = new Edge(start, end)
+    elements.push(edge);
+
+    var data = new Function("return "+document.getElementById('map-data').value)();
+    
+    edge.data = {
+      s: (_.findIndex(data.nodes, function (n) { return n.x ==start.x && n.y == start.y})),
+      e: (_.findIndex(data.nodes, function (n) { return n.x ==end.x && n.y == end.y}))
+    }
+
+    console.log(data);
+    data.edges.push(edge.data);
+    document.getElementById('map-data').value = formatter.format(data);
+  }
+
+  function addNode(x, y){
+    
+    //data.nodes.push(point);
+    //document.getElementById('map-data').value = formatter.format(data);
+    
+    var node = new Node(x, y);
+    node.data = { t:'n', x: x, y: y}
+    elements.push(node);
+
+    var data = new Function("return "+document.getElementById('map-data').value)();
+    data.nodes.push(node.data);
+    document.getElementById('map-data').value = formatter.format(data);
+  }
+
   
   loadData(true);
 
@@ -48,7 +106,7 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
     loadData(true);
   }
 
-    function loadAndDontReset(){
+  function loadAndDontReset(){
     loadData(false);
   }
 
@@ -71,19 +129,19 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
       if(resetElements) elements.push(node.node);
     });
 
-    data.edges.forEach(function(edge){
+    data.edges.forEach(function(edgeData){
       
-      var s = data.nodes[edge.s].node;
-      var e = data.nodes[edge.e].node;
-      console.log(edge, s, e);
-      edge.edge = new Edge(s, e);
-      if(resetElements) elements.push(edge.edge);
+      var s = data.nodes[edgeData.s].node;
+      var e = data.nodes[edgeData.e].node;
+      //console.log(edge, s, e);
+      var edge = new Edge(s, e);
+
+      edge.data = edgeData;
+      if(resetElements) elements.push(edge);
     });
 
     data.nodes.forEach(function(node){ delete node.node;});
-    data.edges.forEach(function(edge){ delete edge.edge;});
 
-    var formatter = new JsonFormater();
     document.getElementById('map-data').value = formatter.format(data);
   }
 
@@ -91,14 +149,22 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
 
     canvas.width = canvas.width;
 
+    elements.forEach(function(e){
+      if(e.tick){
+        e.tick(world);
+      }
+    });
+
     for(var i in elements){
       var e = elements[i];
 
-       if(e.tick){
-        e.tick(world);
+       if(e.tick2){
+        e.tick2(world);
       }
 
-      if(e.colour){
+      if(e.selected) {
+        context.strokeStyle = "#0f0";
+      } else if(e.colour){
         context.strokeStyle = e.colour;
       } else {
         context.strokeStyle = "#000";

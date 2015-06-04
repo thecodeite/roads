@@ -7,7 +7,7 @@ define(function () {
 
     var dx = that.end.x - that.start.x;
     var dy = that.end.y - that.start.y;
-    this.length = ~~(Math.sqrt((dx*dx)+(dy*dy))/10);
+    this.length = ~~(Math.sqrt((dx*dx)+(dy*dy))/6);
 
     this.space = [];
 
