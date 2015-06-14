@@ -8,11 +8,19 @@ define(["Car"], function (Car) {
     this.generated = false;
 
     this.tick = function(world){
+      if(that.generated){
+        return;
+      }
+
+      if(Math.random() < 0) {
+        return;
+      }
+
       var route = that.outbound[~~(Math.random() * that.outbound.length)];
       
-      if(route && route.space[0] && !route.space[0].car && Math.random() > 0.8){ 
-        world.elements.push(new Car(route));
-        this.generated = true;
+      if(route && route.space[0] && !route.space[0].car){ 
+        world.elements.push(new Car(route, world));
+        that.generated = true;
       }
     };
   };

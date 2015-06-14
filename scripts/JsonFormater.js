@@ -11,18 +11,24 @@ define(function () {
       };
     }
 
-    function formatArray(obj, state) {
-      if(obj.length === 0) {
+    function formatArray(array, state) {
+      if(array.length === 0) {
         state.child = 'empty-array';
         return {res: '[]', state: state};
       }
 
-      //console.log('formatArray', state, obj);
+      if(state.touched.indexOf(array) != -1){
+        state.child = 'recursive';
+        return {res: '[recursive]', state: state};
+      }
+      state.touched.push(array);
+
+      //console.log('formatArray', state, array);
       var bits = [];
       var render = 'inline';
       state.indent.push(options.indent);
 
-      obj.forEach(function (item) {
+      array.forEach(function (item) {
         var rendered = formatDetect(item, state);
         bits.push(rendered.res);
 
@@ -64,7 +70,7 @@ define(function () {
       }
       res +=  ']';
 
-      
+      state.touched.pop();
       state.child = 'array';
       //console.log('end formatArray', res);
       return {res: res, state: state};
@@ -75,6 +81,12 @@ define(function () {
         state.child = 'empty-object';
         return {res: '{}', state: state};
       }
+
+      if(state.touched.indexOf(obj) != -1){
+        state.child = 'recursive';
+        return {res: '[recursive]', state: state};
+      }
+      state.touched.push(obj);
 
       var bits = {};
       var render = 'inline';
@@ -123,6 +135,7 @@ define(function () {
       res += '}';
 
      
+      state.touched.pop();
       state.child = 'object';
       //console.log('end formatObject', obj);
       return {res: res, state: state};
@@ -142,6 +155,14 @@ define(function () {
         case 'boolean':
           state.child = 'boolean';
           return {res:obj?'true':'false', state: state};
+
+        case 'function':
+          state.child = 'function';
+          return {res:'[Function]', state: state};
+
+        case 'undefined':
+          state.child = 'undefined';
+          return {res:'undefined', state: state};
         
         case 'object':
           if(obj === null) {
@@ -159,7 +180,7 @@ define(function () {
     }
 
     function format(obj) {
-      return formatDetect(obj, {indent:[]}).res;
+      return formatDetect(obj, {indent:[], touched:[]}).res;
     }
 
     return {

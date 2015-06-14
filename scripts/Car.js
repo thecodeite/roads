@@ -1,5 +1,5 @@
 define(function () {
-  return function Car(link) {
+  return function Car(link, world) {
     var that = this;
 
     this.link = link;
@@ -9,6 +9,49 @@ define(function () {
     this.y = link.start.y;
     this.colour = getRandomColor();
     that.currentSpace = link.space[0];
+
+    that.target = world.terminusList[0];
+    that.route = pickRoute(that.target);
+    that.nextEdgeOnRoute = 1;
+
+    function pickRoute() {
+
+      var bestRoute = {
+        route:[],
+        length: 999999999
+      };
+      var currentRoute = [link];
+
+      continueRoute(link)
+
+      console.log(bestRoute);
+      return bestRoute.route;
+
+      function continueRoute(currentLink) {
+        
+        if(currentLink.end == that.target) {
+          var newRoute = currentRoute.slice();
+          var length = 0;
+          newRoute.forEach(function(edge){
+            length += edge.length;
+          }); 
+
+          if(length < bestRoute.length) {
+            bestRoute.length = length;
+            bestRoute.route = newRoute;
+          }
+        }
+
+        var endPoints = currentLink.end.outbound;
+
+        for(var idx in endPoints) {
+          var nextLink = endPoints[idx];
+          currentRoute.push(nextLink);
+          continueRoute(nextLink);
+          currentRoute.pop();
+        }
+      }
+    }
 
     function getRandomColor() {
       var letters = '0123456789A'.split('');
@@ -20,6 +63,10 @@ define(function () {
     }
 
     this.tick = function(world) {
+
+      if(that.broken) {
+        return;
+      }
 
       if(that.stopped){
         that.stopped = false;
@@ -35,8 +82,9 @@ define(function () {
 
         if(outbounds.length === 0){
           
-          if(that.link.end.action === 'terminate'){
-             var i = world.elements.indexOf(that);
+          if(that.link.end.action === 'terminate') {
+            that.currentSpace.car = null;
+            var i = world.elements.indexOf(that);
             if(i != -1) {
               world.elements.splice(i, 1);
             }
@@ -46,18 +94,28 @@ define(function () {
 
 
 
-        var nextLink;
+        var nextLink = that.route[that.nextEdgeOnRoute];
+        var found = outbounds.indexOf(nextLink);
+
+        if(found == -1) {
+          console.log('Confused, next link does not exist!');
+          that.broken = true;
+          return;
+        }
+        /*
         if(outbounds.length == 1){
           nextLink = outbounds[0];
         } else {
-          console.log('rolling the dice!', that.link );
+          console.log('Lost! rolling the dice!', that.link );
           nextLink = outbounds[~~(Math.random() * outbounds.length)];
         }
-        
+        */
+
         if(!nextLink.space[0].car){
           that.link = nextLink;
           that.nextProgress = 0;
           that.nextSpace = nextLink.space[0];
+          that.nextEdgeOnRoute++;
         }
       }
     };

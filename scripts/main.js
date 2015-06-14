@@ -7,8 +7,10 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
 
   canvas.addEventListener("mousedown", doMouseDown, false);
   var elements = [];
+  var terminusList = [];
   var world = {
-    elements: elements
+    elements: elements,
+    terminusList: terminusList
   };
 
   var selected = null;
@@ -57,6 +59,7 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
       selected.selected = undefined;
     }
     selected = node;
+    document.getElementById('selected-data').innerHTML = formatter.format(node);
     if(selected){
       selected.selected = true;
     }
@@ -95,12 +98,38 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
   
   loadData(true);
 
+  var playing = true;
+  playPause();
+
+  document.getElementById('btn-play').addEventListener("click", playPause);
+  document.getElementById('btn-tick').addEventListener("click", tick);
+
+  document.getElementById('btn-clear').addEventListener("click", clear);
   document.getElementById('btn-load-reset').addEventListener("click", loadAndReset);
   document.getElementById('btn-load-no-reset').addEventListener("click", loadAndDontReset);
 
+
+
   setInterval(function() {
     render(elements);
+    if(playing) {
+      doTick(elements);
+    }
   }, 250);
+
+  function playPause() {
+    playing = !playing;
+    document.getElementById('btn-play').innerHTML = playing?'Pause':'Play';
+  }
+
+  function tick() {
+    doTick(elements);
+  }
+
+  function clear() {
+    document.getElementById('map-data').value = formatter.format({nodes: [], edges:[]});
+    loadData(true);
+  }
 
   function loadAndReset(){
     loadData(true);
@@ -116,7 +145,10 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
     /*jslint evil: true */
     data = new Function("return "+data)();
     
-    if(resetElements) elements.length = 0;
+    if(resetElements) {
+      elements.length = 0;
+      terminusList.length = 0;
+    }
 
     data.nodes.forEach(function(node){
       if(node.t == 's'){
@@ -124,7 +156,8 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
       } else if(node.t == 'n'){
         node.node = new Node(node.x, node.y);
       } else if(node.t == 't'){
-        node.node = new Node(node.x, node.y);
+        node.node = new Terminus(node.x, node.y);
+        if(resetElements) terminusList.push(node.node);
       }
       if(resetElements) elements.push(node.node);
     });
@@ -145,22 +178,23 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
     document.getElementById('map-data').value = formatter.format(data);
   }
 
+  function doTick(elements) {
+    elements.forEach(function(e) {
+      if(e.tick) e.tick(world);
+    });
+
+    elements.forEach(function(e) {
+      if(e.tick2) e.tick2(world);
+    });
+
+  }
+
   function render(elements) {
 
     canvas.width = canvas.width;
-
-    elements.forEach(function(e){
-      if(e.tick){
-        e.tick(world);
-      }
-    });
-
+    
     for(var i in elements){
       var e = elements[i];
-
-       if(e.tick2){
-        e.tick2(world);
-      }
 
       if(e.selected) {
         context.strokeStyle = "#0f0";
