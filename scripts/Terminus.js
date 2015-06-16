@@ -1,10 +1,11 @@
 define(function () {
-  return function Terminus (x, y) {
+  return function Terminus (node) {
 
-    this.x = x;
-    this.y = y;
+    this.x = node.x;
+    this.y = node.y;
+    this.name = node.name;
     this.outbound=[];
     this.action = 'terminate';
-    this.colour = "#F00";
+    this.colour = node.colour || "#F00";
   };
 });

@@ -1,5 +1,5 @@
-requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"], 
-  function(Node, Source, Terminus, Car, Edge, JsonFormater) {
+requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"], 
+  function(Node, Source, Terminus, Car, Edge, JsonFormater, math) {
 
   var canvas = document.getElementById('main-canvas');
   var context = canvas.getContext("2d");
@@ -99,7 +99,7 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
   loadData(true);
 
   var playing = true;
-  playPause();
+  //playPause();
 
   document.getElementById('btn-play').addEventListener("click", playPause);
   document.getElementById('btn-tick').addEventListener("click", tick);
@@ -107,6 +107,7 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
   document.getElementById('btn-clear').addEventListener("click", clear);
   document.getElementById('btn-load-reset').addEventListener("click", loadAndReset);
   document.getElementById('btn-load-no-reset').addEventListener("click", loadAndDontReset);
+  document.getElementById('btn-load-random').addEventListener("click", loadRandom);
 
 
 
@@ -115,7 +116,7 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
     if(playing) {
       doTick(elements);
     }
-  }, 250);
+  }, 100);
 
   function playPause() {
     playing = !playing;
@@ -139,6 +140,73 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
     loadData(false);
   }
 
+  function loadRandom() {
+
+
+    var data = new Function("return "+document.getElementById('map-data').value)();
+    data.nodes.length = 0;
+    for(var i=0; i<100; i++) {
+      var types = ['n', 'n', 'n', 's', 't'];
+
+
+
+      data.nodes.push({
+        t: types[~~(Math.random() * types.length)], 
+        x: 10 + 10*~~(Math.random() * 40),
+        y: 10 + 10*~~(Math.random() * 40)
+      })
+    }
+
+    var allEdges = [];
+    data.nodes.forEach(function(outer) {
+      data.nodes.forEach(function(inner) {
+        if(outer !== inner) {
+          allEdges.push({
+            s: outer,
+            e: inner,
+            length: (outer.x - inner.x) * (outer.x - inner.x) * 
+              (outer.y - inner.y) * (outer.y - inner.y)
+          });
+        }
+      });
+    });
+
+    allEdges.sort(function(a, b){
+      return a.length - b.length;
+    });
+
+    var goodEdges = [];
+
+    allEdges.forEach(function(e){
+      //console.debug('o', e);
+      var intersects = goodEdges.some(function(eg) {
+        //console.debug('i', eg);
+        return math.lineIntersect(
+          e.s.x, e.s.y,  
+          e.e.x, e.e.y,  
+
+          eg.s.x, eg.s.y,  
+          eg.e.x, eg.e.y)
+      });
+
+      if(!intersects) {
+        goodEdges.push(e);
+      }
+    });
+
+
+    data.edges = goodEdges.map(function(e){
+      return {
+        s: data.nodes.indexOf(e.s),
+        e: data.nodes.indexOf(e.e)
+      }
+    });
+
+
+    document.getElementById('map-data').value = formatter.format(data);
+    loadData(true);
+  }
+
   function loadData(resetElements) {
     var data = document.getElementById('map-data').value;
 
@@ -150,15 +218,17 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
       terminusList.length = 0;
     }
 
+    var id = 0;
     data.nodes.forEach(function(node){
       if(node.t == 's'){
-        node.node = new Source(node.x, node.y);
+        node.node = new Source(node);
       } else if(node.t == 'n'){
         node.node = new Node(node.x, node.y);
       } else if(node.t == 't'){
-        node.node = new Terminus(node.x, node.y);
+        node.node = new Terminus(node);
         if(resetElements) terminusList.push(node.node);
       }
+      node.node.id = ""+(id++);
       if(resetElements) elements.push(node.node);
     });
 
@@ -196,16 +266,33 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
     for(var i in elements){
       var e = elements[i];
 
+
+      if(e instanceof Source || e instanceof Terminus) {
+        context.strokeStyle = "#000";
+        context.strokeRect(e.x-3.5, e.y-3.5, 7, 7);
+      }
+
       if(e.selected) {
         context.strokeStyle = "#0f0";
+        context.fillStyle = "#0f0";
       } else if(e.colour){
-        context.strokeStyle = e.colour;
+        if(e instanceof Car){
+          context.strokeStyle = "#000";
+        } else {
+          context.strokeStyle = e.colour;
+        }
+        context.fillStyle = e.colour;
       } else {
         context.strokeStyle = "#000";
+        context.fillStyle = "#000";
       }
 
       if(e.x && e.y) {
-        context.strokeRect(e.x-2, e.y-2, 4, 4);
+        if(e instanceof Car){
+          drawCircle(context, true, e.x, e.y, 2);
+        } else {
+          context.strokeRect(e.x-2.5, e.y-2.5, 5, 5);
+        }
       } else if (e.start && e.end) {
 
         context.moveTo(e.start.x, e.start.y);
@@ -213,6 +300,16 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater"],
         context.strokeStyle = "#eee";
         context.stroke();
       }
+    }
+  }
+
+  function drawCircle(context, fill, x, y, size){
+    context.beginPath();
+    context.arc(x, y, size, 0, 2 * Math.PI);
+    context.closePath();
+    context.stroke();
+    if(fill){
+        context.fill()
     }
   }
 });

@@ -1,14 +1,20 @@
 define(["Car"], function (Car) {
-  return function Source (x, y) {
+  return function Source (node) {
     var that = this;
-    this.x = x;
-    this.y = y;
+    this.x = node.x;
+    this.y = node.y;
+    this.destination = node.destination;
+
+
+
     this.outbound=[];
     this.colour = "#0F0";
-    this.generated = false;
+    this.generated = 0;
+    this.car = null;
 
     this.tick = function(world){
-      if(that.generated){
+      if(that.generated > 0){
+        that.generated--;
         return;
       }
 
@@ -16,11 +22,9 @@ define(["Car"], function (Car) {
         return;
       }
 
-      var route = that.outbound[~~(Math.random() * that.outbound.length)];
-      
-      if(route && route.space[0] && !route.space[0].car){ 
-        world.elements.push(new Car(route, world));
-        that.generated = true;
+      if(!that.car ){ 
+        world.elements.push(new Car(that, world, that.destination));
+        that.generated = 5; ///Math.random()*10;
       }
     };
   };

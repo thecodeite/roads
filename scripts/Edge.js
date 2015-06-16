@@ -7,12 +7,12 @@ define(function () {
 
     var dx = that.end.x - that.start.x;
     var dy = that.end.y - that.start.y;
-    this.length = ~~(Math.sqrt((dx*dx)+(dy*dy))/6);
+    this.length = ~~(Math.sqrt((dx*dx)+(dy*dy))/6)+1;
 
     this.space = [];
 
-    for(var i=0; i<this.length; i++){
-      that.space[i] = {
+    for(var i=1; i<this.length; i++){
+      that.space[i-1] = {
         x: that.start.x + ((dx*i)/this.length),
         y: that.start.y + ((dy*i)/this.length),
         car: null
