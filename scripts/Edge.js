@@ -7,7 +7,12 @@ define(function () {
 
     var dx = that.end.x - that.start.x;
     var dy = that.end.y - that.start.y;
-    this.length = ~~(Math.sqrt((dx*dx)+(dy*dy))/6)+1;
+    this.length = ~~(Math.sqrt((dx*dx)+(dy*dy))/6);
+
+    if(this.length < 2) {
+      console.log( "Bad edge!" , this);
+      throw "Stop";
+    }
 
     this.space = [];
 

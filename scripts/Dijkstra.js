@@ -74,6 +74,10 @@ define(function () {
         }
 
         next.fixed = true;
+
+        if(next.node == end){
+          return;
+        }
         
         //console.log('next', next);
         calcNextSpt(next);

@@ -98,10 +98,10 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"],
   
   loadData(true);
 
-  var playing = true;
-  //playPause();
+  world.playing = true;
+  //world.playPause();
 
-  document.getElementById('btn-play').addEventListener("click", playPause);
+  document.getElementById('btn-play').addEventListener("click", world.playPause);
   document.getElementById('btn-tick').addEventListener("click", tick);
 
   document.getElementById('btn-clear').addEventListener("click", clear);
@@ -113,14 +113,14 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"],
 
   setInterval(function() {
     render(elements);
-    if(playing) {
+    if(world.playPause) {
       doTick(elements);
     }
   }, 100);
 
-  function playPause() {
-    playing = !playing;
-    document.getElementById('btn-play').innerHTML = playing?'Pause':'Play';
+  world.playPause = function() {
+    world.playing = !world.playing;
+    document.getElementById('btn-play').innerHTML = world.playPause?'Pause':'Play';
   }
 
   function tick() {
@@ -145,16 +145,23 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"],
 
     var data = new Function("return "+document.getElementById('map-data').value)();
     data.nodes.length = 0;
-    for(var i=0; i<100; i++) {
+    for(var i=0; i<50; i++) {
       var types = ['n', 'n', 'n', 's', 't'];
+      var tries = 100;
+      var newNode;
+      do {
+        if(tries-- < 0) break;
 
+        newNode = {
+          t: types[~~(Math.random() * types.length)], 
+          x: 25 + 25*~~(Math.random() * 15),
+          y: 25 + 25*~~(Math.random() * 15)
+        };
+      }
+      while(data.nodes.some(function(n){return n.x == newNode.x && n.y == newNode.y;}))
 
-
-      data.nodes.push({
-        t: types[~~(Math.random() * types.length)], 
-        x: 10 + 10*~~(Math.random() * 40),
-        y: 10 + 10*~~(Math.random() * 40)
-      })
+      
+      data.nodes.push(newNode);
     }
 
     var allEdges = [];
@@ -164,20 +171,43 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"],
           allEdges.push({
             s: outer,
             e: inner,
-            length: (outer.x - inner.x) * (outer.x - inner.x) * 
+            length: (outer.x - inner.x) * (outer.x - inner.x) + 
               (outer.y - inner.y) * (outer.y - inner.y)
           });
         }
       });
     });
 
-    allEdges.sort(function(a, b){
-      return a.length - b.length;
-    });
+    if(true) allEdges = allEdges
+      .filter(function(x){
+        return x.length < 200*200;
+      })
+      .sort(function(a, b){
+        return a.length - b.length;
+      });
 
     var goodEdges = [];
 
-    allEdges.forEach(function(e){
+    if (true) [1,2,3,4,5].forEach(function(i) {
+      var e = allEdges.splice(~~(allEdges.length*Math.random()), 1)[0];
+
+
+      var intersects = goodEdges.some(function(eg) {
+        //console.debug('i', eg);
+        return math.lineIntersect(
+          e.s.x, e.s.y,  
+          e.e.x, e.e.y,  
+
+          eg.s.x, eg.s.y,  
+          eg.e.x, eg.e.y)
+      });
+
+      if(!intersects) {
+        goodEdges.push(e);
+      }
+    });
+
+    if(true) allEdges.forEach(function(e){
       //console.debug('o', e);
       var intersects = goodEdges.some(function(eg) {
         //console.debug('i', eg);
@@ -250,11 +280,11 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"],
 
   function doTick(elements) {
     elements.forEach(function(e) {
-      if(e.tick) e.tick(world);
+      if(e.tick && world.playing) e.tick(world);
     });
 
     elements.forEach(function(e) {
-      if(e.tick2) e.tick2(world);
+      if(e.tick2 && world.playing) e.tick2(world);
     });
 
   }
@@ -263,9 +293,7 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"],
 
     canvas.width = canvas.width;
     
-    for(var i in elements){
-      var e = elements[i];
-
+    var renderE = function(e) {
 
       if(e instanceof Source || e instanceof Terminus) {
         context.strokeStyle = "#000";
@@ -300,7 +328,15 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math"],
         context.strokeStyle = "#eee";
         context.stroke();
       }
-    }
+    };
+
+    elements.forEach(function(e) {
+      if(e instanceof Edge) renderE(e);
+    });
+
+     elements.forEach(function(e) {
+      if(!(e instanceof Edge)) renderE(e);
+    });
   }
 
   function drawCircle(context, fill, x, y, size){

@@ -151,7 +151,16 @@ define(["Dijkstra"], function (Dijkstra) {
       if(that.node) {
         //console.debug('On node', that.node);
 
-        if(that.node.action === 'terminate') {
+        if(that.target){
+          if(that.target == that.node){
+            that.node.car = null;
+            var i = world.elements.indexOf(that);
+            if(i != -1) {
+              world.elements.splice(i, 1);
+            }
+            return;
+          }
+        } else if(that.node.action === 'terminate') {
           that.node.car = null;
           var i = world.elements.indexOf(that);
           if(i != -1) {
@@ -176,6 +185,12 @@ define(["Dijkstra"], function (Dijkstra) {
         }
 
         var space = edgeToMoveTo.space[0];
+
+        if(!space){
+          console.error("Bad!", edgeToMoveTo);
+          world.playPause();
+          return;
+        }  
 
         if(space.car) {
           //console.debug('Cant move to space, its full');
