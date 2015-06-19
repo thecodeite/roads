@@ -2,6 +2,7 @@
 <html>
 <head>
   <script src="bower_components/lodash/lodash.js"></script>
+  <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
   <script src="scripts/polyfill.js"></script>
   <script data-main="scripts/main" src="bower_components/requirejs/require.js"></script>
   <style>
@@ -14,7 +15,22 @@
 <body>
   <div>
     <canvas id="main-canvas" width="500" height="500"></canvas>
-    <pre id="selected-data" style="display: inline-block; vertical-align: top; width: 300px; border: 1px solid black;">Info</pre>
+    <div style="display: inline-block; vertical-align: top; width: 300px">
+      <pre id="selected-data" style="border: 1px solid black;">Info</pre>
+      <pre id="hover-data" style="border: 1px solid black;">Over</pre>
+    </div>
+  </div>
+  <div>
+    <button id="btn-load">Load</button>
+    <button id="btn-save">Save</button>
+    <input id="input-save-name" value="default" list="maps-list"/>
+    <datalist id="maps-list">
+    </datalist>
+    <datalist id="version-list">
+    </datalist>
+    <input id="input-save-version" value="most-recent" list="version-list"/>
+
+    <span id="save-status" ></span>
   </div>
   <div>
     <button id="btn-clear">Clear</button>
@@ -24,76 +40,9 @@
     |
     <button id="btn-play">Play</button>
     <button id="btn-tick">Tick</button>
+
   </div>
-  <textarea id="map-data" style="width: 500px; height: 500px">
-{
-  "nodes": [
-   
-  ],
-  "edges": [
-   
-  ]
-}
+  <textarea id="map-data" style="width: 500px; height: 500px">{ "nodes": [],"edges": []}
   </textarea>
- 
-  <textarea id="map-data-x" style="width: 500px; height: 500px">
- {
-  "nodes": [
-    {"t": "s", "x": 58, "y": 161},
-    {"t": "s", "x": 58, "y": 217},
-    {"t": "s", "x": 58, "y": 292},
-    {"t": "t", "x": 401, "y": 157},
-    {"t": "t", "x": 401, "y": 218},
-    {"t": "t", "x": 401, "y": 285},
-    {"t": "n", "x": 133, "y": 226},
-    {"t": "n", "x": 306, "y": 229}
-  ],
-  "edges": [
-    {"s": 0, "e": 6},
-    {"s": 6, "e": 7},
-    {"s": 7, "e": 3},
-    {"s": 1, "e": 6},
-    {"s": 2, "e": 6},
-    {"s": 7, "e": 4},
-    {"s": 7, "e": 5}
-  ]
-}
-  </textarea>
-<div id='crash-test'>
-  {
-  "nodes": [
-    {"t": "n", "x": 100, "y": 100},
-    {"t": "s", "x": 150, "y": 100},
-    {"t": "s", "x": 100, "y": 150},
-    {"t": "t", "x": 50, "y": 50}
-  ],
-  "edges": [
-    {"s": 2, "e": 0},
-    {"s": 1, "e": 0},
-    {"s": 0, "e": 3}
-  ]
-}
-</div>
-<div id="routing-test">
-{
-  "nodes": [
-    {"t": "n", "x": 150, "y": 50, "destination": "south"},
-    {"t": "n", "x": 50, "y": 150, "destination": "east"},
-    {"t": "t", "x": 150, "y": 250, "name": "south", "colour": "#F0F"},
-    {"t": "t", "x": 250, "y": 150, "name": "east", "colour": "#FF0"},
-    {"t": "n", "x": 150, "y": 150},
-    {"t": "s", "x": 50, "y": 50, "destination": ["south", "east"]},
-    {"t": "t", "x": 250, "y": 250}
-  ],
-  "edges": [
-    {"s": 0, "e": 4},
-    {"s": 4, "e": 2},
-    {"s": 1, "e": 4},
-    {"s": 4, "e": 3},
-    {"s": 5, "e": 4},
-    {"s": 4, "e": 6}
-  ]
-}
-</div>
 </body>
 </html>

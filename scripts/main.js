@@ -1,103 +1,25 @@
-requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", "render", "load"], 
-  function(Node, Source, Terminus, Car, Edge, JsonFormater, math, render, load) {
+requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", "render", "load", "server-access", "ui", "eventBroker"], 
+  function(Node, Source, Terminus, Car, Edge, JsonFormater, math, render, load, serverAccess, ui, eventBroker) {
 
   var canvas = document.getElementById('main-canvas');
+
+
   var context = canvas.getContext("2d");
   var formatter = new JsonFormater();
 
-  canvas.addEventListener("mousedown", doMouseDown, false);
-
   var world = load.world; 
-
-  var selected = null;
-
-  function doMouseDown(event) {
-    if(event.button == 2){
-      selectNode(null);
-      return;
-    }
-
-    var x = event.pageX - this.offsetLeft;
-    var y = event.pageY - this.offsetTop;
-
-    var clickedOn = _.find(world.elements, function(node){
-      return node.x+5 >= x 
-      && node.x-1 <= x
-      && node.y+5 >= y 
-      && node.y-1 <= y;
-    });
-
-    if(clickedOn){
-      if(selected) {
-        if(clickedOn != selected) {
-          addEdge(selected, clickedOn);
-          selectNode(clickedOn);
-        }
-      } else {
-        selectNode(clickedOn);
-        console.log('Selected a node');
-      }
-    } else {
-      if(selected) {
-        console.log('Un-selected a node');
-        selectNode(null);
-      } else {
-        addNode(x,y);
-      }
-    }
-
-    console.log('Found', clickedOn);
-    return;
-  }
-
-  function selectNode(node) {
-    if(selected){
-      selected.selected = undefined;
-    }
-    selected = node;
-    
-    if(selected){
-      selected.selected = true;
-    }
-  }
-
-  function addEdge(start, end) {
-    var edge = new Edge(start, end)
-    world.elements.push(edge);
-
-    load.context(function (data) {
-
-      edge.data = {
-        s: (_.findIndex(data.nodes, function (n) { return n.x ==start.x && n.y == start.y})),
-        e: (_.findIndex(data.nodes, function (n) { return n.x ==end.x && n.y == end.y}))
-      }
-
-      console.log(data);
-      data.edges.push(edge.data);
-    })
-  }
-
-  function addNode(x, y) {
-    
-    //data.nodes.push(point);
-    //document.getElementById('map-data').value = formatter.format(data);
-    
-    var node = new Node({x:x, y:y});
-    node.data = { t:'n', x: x, y: y}
-    world.elements.push(node);
-
-    //var data = new Function("return "+document.getElementById('map-data').value)();
-    load.context(function (data) {
-      data.nodes.push(node.data);
-    })
-    //document.getElementById('map-data').value = formatter.format(data);
-  }
-
+  ui(canvas, world);
   
-  load.loadData(true);
+
+  //load.loadData(true);
+  loadFromServer();
 
   world.playing = true;
   //world.playPause();
+
+  document.getElementById('btn-load').addEventListener("click", loadFromServer);
+  document.getElementById('btn-save').addEventListener("click", saveToServer);
+  //document.getElementById('input-save-name').addEventListener("click", playPause);
 
   document.getElementById('btn-play').addEventListener("click", playPause);
   document.getElementById('btn-tick').addEventListener("click", tick);
@@ -107,7 +29,35 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", 
   document.getElementById('btn-load-no-reset').addEventListener("click", load.loadAndDontReset);
   document.getElementById('btn-load-random').addEventListener("click", load.loadRandom);
 
+  populateDropdown();
+  function populateDropdown() {
+    serverAccess.maps().then(function(data) {
+      var mapsList = document.getElementById('maps-list');
+      mapsList.innerHTML = '';
+      Object.keys(data).forEach(function(mapName) {
 
+        var option = document.createElement('option');
+        option.value = mapName;
+
+        mapsList.appendChild(option);
+        //console.log('mapName', mapName);
+      })
+    });
+  }
+
+  function loadFromServer() {
+    var mapName = document.getElementById('input-save-name').value;
+    serverAccess.load(mapName).then(function (data) {
+      load.setData(data);
+    });
+  }
+
+  function saveToServer(){
+    var mapName = document.getElementById('input-save-name').value;
+    load.context(function(data) {
+      serverAccess.save(mapName, data);
+    });
+  }
 
   setInterval(function() {
     render(canvas, context, world);
@@ -117,8 +67,19 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", 
     updateUi();
   }, 100);
 
-  function updateUi(){
-    document.getElementById('selected-data').innerHTML = formatter.format(selected && selected.getInfo());
+  eventBroker.on(eventBroker.NODE_SELECTED, function(e){
+    world.selected = e.detail;
+    document.getElementById('selected-data').innerHTML = formatter.format(world.selected && world.selected.getInfo());
+  });
+
+  eventBroker.on(eventBroker.NODE_HOVER, function(e){
+    world.over = e.detail;
+    document.getElementById('hover-data').innerHTML = formatter.format(world.over && world.over.getInfo());
+  });
+
+  function updateUi() {
+    document.getElementById('selected-data').innerHTML = formatter.format(world.selected && world.selected.getInfo());
+    document.getElementById('hover-data').innerHTML = formatter.format(world.over && world.over.getInfo());
   }
 
   world.playPause = playPause;

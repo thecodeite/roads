@@ -42,6 +42,15 @@ define(function () {
         gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
         return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
       }
+    },
+    onLine: function (ax,ay, bx,by, tx,ty) {
+     var EPSILON = 3;
+
+     var a = (by - ay) / (bx - ax);
+     var b = ay - a * ax;
+     var isOnLine = Math.abs(ty - (a*tx+b));
+     //console.log('onLine', isOnLine, ty, a*tx+b);
+     return isOnLine < EPSILON;
     }
   };
 });

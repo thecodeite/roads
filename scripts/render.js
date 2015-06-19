@@ -27,6 +27,9 @@ define(["Node", "Source", "Terminus", "Edge", "Car"],
       if(e.selected) {
         context.strokeStyle = "#0f0";
         context.fillStyle = "#0f0";
+      } else if(e == world.over) {
+        context.strokeStyle = "#0a0";
+        context.fillStyle = "#0a0";
       } else if(e.colour){
         if(e instanceof Car){
           context.strokeStyle = "#000";
@@ -49,7 +52,11 @@ define(["Node", "Source", "Terminus", "Edge", "Car"],
 
         context.moveTo(e.start.x, e.start.y);
         context.lineTo(e.end.x, e.end.y);
-        context.strokeStyle = "#eee";
+        if(e == world.over){
+          context.strokeStyle = "#333";
+        } else {
+          context.strokeStyle = "#eee";
+        }
         context.stroke();
       }
     };

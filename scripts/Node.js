@@ -11,7 +11,9 @@ define(function () {
     return {
       x: this.x,
       y: this.y,
-      colour: this.colour
+      colour: this.colour,
+      id: this.id,
+      a: [1]
     };
   };
 

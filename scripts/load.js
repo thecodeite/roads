@@ -1,11 +1,12 @@
-define(["Node", "Source", "Terminus", "Edge", "Car", "JsonFormater"], 
-function (Node, Source, Terminus, Edge, Car, JsonFormater) {
+define(["Node", "Source", "Terminus", "Edge", "Car", "JsonFormater", "math"], 
+function (Node, Source, Terminus, Edge, Car, JsonFormater, math) {
   
   var formatter = new JsonFormater();
 
   this.world = {
     elements: [],
-    terminusList: []
+    terminusList: [], 
+    selected: null
   };
 
   function loadRandom() {
@@ -105,11 +106,14 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater) {
     loadData(true);
   }
 
-  function loadData(resetElements) {
-    var data = document.getElementById('map-data').value;
+  function loadData(resetElements, data) {
+    
+    if(!data){
+      data = document.getElementById('map-data').value;
 
-    /*jslint evil: true */
-    data = new Function("return "+data)();
+      /*jslint evil: true */
+      data = new Function("return "+data)();
+    }
     
     if(resetElements) {
       this.world.elements.length = 0;
@@ -165,6 +169,10 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater) {
      document.getElementById('map-data').value = formatter.format(data);
   }
 
+  function setData(data) {
+    loadData(true, data);
+  }
+
 
   return {
     world: this.world,
@@ -174,6 +182,8 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater) {
     clear: clear,
     loadAndReset: loadAndReset,
     loadAndDontReset: loadAndDontReset,
+    setData: setData,
+
     context: context
   };
 });

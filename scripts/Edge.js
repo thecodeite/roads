@@ -1,5 +1,5 @@
 define(function () {
-  return function Edge (start, end) {
+  function Edge (start, end) {
     var that = this;
 
     this.start = start;
@@ -26,4 +26,13 @@ define(function () {
 
     this.start.outbound.push(this);
   };
+
+  Edge.prototype.getInfo = function() {
+    return {
+      start: this.start.x+','+this.start.y,
+      end: this.end.x+','+this.end.y
+    };
+  };
+
+  return Edge;
 });
