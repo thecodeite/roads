@@ -1,31 +1,39 @@
-define(["Car"], function (Car) {
-  return function Source (node) {
-    var that = this;
-    this.x = node.x;
-    this.y = node.y;
+define(["Car", "Node"], function (Car, Node) {
+  
+  function Source (node) {
+    Node.call(this, node);
+
     this.destination = node.destination;
-
-
-
-    this.outbound=[];
     this.colour = "#0F0";
     this.generated = 0;
-    this.car = null;
+    
+  }
 
-    this.tick = function(world){
-      if(that.generated > 0){
-        that.generated--;
-        return;
-      }
+  Source.prototype = Object.create(Node.prototype);
+  Source.prototype.constructor = Source;
+  
+  Source.prototype.getInfo = function() {
+    var info = Node.prototype.getInfo.call(this);
 
-      if(Math.random() < 0) {
-        return;
-      }
+    info.generated = this.generated;
+    return info;
+  }
 
-      if(!that.car ){ 
-        world.elements.push(new Car(that, world, that.destination));
-        that.generated = 5; ///Math.random()*10;
-      }
-    };
+  Source.prototype.tick = function(world) {
+    if(this.generated > 0){
+      this.generated--;
+      return;
+    }
+
+    if(Math.random() < 0) {
+      return;
+    }
+
+    if(!this.car) { 
+      world.elements.push(new Car(this, world, this.destination));
+      this.generated = 5; ///Math.random()*10;
+    }
   };
+
+  return Source;
 });

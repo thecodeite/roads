@@ -15,16 +15,9 @@ define(function () {
 
       calcNextSpt(sptSet[start.id]);
 
-     
-
       var sptEnd = sptSet[end.id];
-      //console.log('sptEnd', sptEnd);
 
       return sptEnd.route;
-      //return {
-      //  route: sptEnd.route,
-      //  length: sptEnd.distance
-      //};
 
       function calcNextSpt(thisSpt) {
         //console.log('thisSpt', thisSpt);
@@ -35,7 +28,7 @@ define(function () {
 
           var newSpd = {
             distance: e.length + thisSpt.distance + e.space.reduce(function(p,c){
-              if(c.car && c.car.stopped) p += 10;
+              if(c.car && c.car.stopped) p += 30;
               return p;
             }, 0), 
             node: e.end,
@@ -75,7 +68,7 @@ define(function () {
 
         next.fixed = true;
 
-        if(next.node == end){
+        if(next.node == end) {
           return;
         }
         

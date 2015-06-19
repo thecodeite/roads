@@ -1,8 +1,20 @@
 define(function () {
-  return function Node (x, y) {
-    this.x = x;
-    this.y = y;
+  function Node (nodeDetails) {
+    this.x = nodeDetails.x;
+    this.y = nodeDetails.y;
     this.car = null;
     this.outbound=[];
+    this.colour = "#000";
   };
+
+  Node.prototype.getInfo = function() {
+    return {
+      x: this.x,
+      y: this.y,
+      colour: this.colour
+    };
+  };
+
+
+  return Node;
 });
