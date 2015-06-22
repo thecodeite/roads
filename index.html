@@ -6,10 +6,17 @@
   <script src="scripts/polyfill.js"></script>
   <script data-main="scripts/main" src="bower_components/requirejs/require.js"></script>
   <style>
-   #main-canvas {
+    #main-canvas {
       border: 1px dotted gray;
-      x-cursor: crosshair;
-   }
+      cursor: none;
+    }
+    
+    h2 {
+      font-size: 1em;
+      border: 0px;
+      padding: 0px;
+      margin: 0px;
+    }
   </style>
 </head>
 <body>
@@ -18,6 +25,18 @@
     <div style="display: inline-block; vertical-align: top; width: 300px">
       <pre id="selected-data" style="border: 1px solid black;">Info</pre>
       <pre id="hover-data" style="border: 1px solid black;">Over</pre>
+      <div>
+        <h2>Nodes</h2>
+        <select style="width: 100%" size="8"></select>
+      </div>
+      <div>
+        <h2>Edges</h2>
+        <select style="width: 100%" size="8"></select>
+      </div>
+      <div>
+        <h2>Cars</h2>
+        <select style="width: 100%" size="8"></select>
+      </div>
     </div>
   </div>
   <div>

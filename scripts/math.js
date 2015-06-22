@@ -44,13 +44,26 @@ define(function () {
       }
     },
     onLine: function (ax,ay, bx,by, tx,ty) {
-     var EPSILON = 3;
+      var EPSILON = 5;
 
-     var a = (by - ay) / (bx - ax);
-     var b = ay - a * ax;
-     var isOnLine = Math.abs(ty - (a*tx+b));
-     //console.log('onLine', isOnLine, ty, a*tx+b);
-     return isOnLine < EPSILON;
+      var left = (ax<bx?ax:bx) - EPSILON;
+      var right = (ax>bx?ax:bx) + EPSILON;
+      var top = (ay>by?ay:by) + EPSILON;
+      var bot = (ay<by?ay:by) - EPSILON;
+
+      if(tx > right || tx < left || ty > top || ty < bot) return false;
+
+      if(ax == bx) {
+        if(Math.abs(tx-ax) < EPSILON) return true;
+        console.log('verticale');
+      }
+
+      var a = (by - ay) / (bx - ax);
+      var b = ay - a * ax;
+      var isOnLine = Math.abs(ty - (a*tx+b));
+
+      //console.log('onLine', isOnLine, a, b, ty, a*tx+b);
+      return isOnLine < EPSILON;
     }
   };
 });

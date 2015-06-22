@@ -4,20 +4,24 @@ define(["Car", "Node"], function (Car, Node) {
     Node.call(this, node);
 
     this.destination = node.destination;
-    this.colour = "#0F0";
+    this.colour = "#00FF00";
     this.generated = 0;
-    
+
+    this.addProperty('generated', 'number', false);
   }
 
   Source.prototype = Object.create(Node.prototype);
   Source.prototype.constructor = Source;
   
+  
+  /*
   Source.prototype.getInfo = function() {
     var info = Node.prototype.getInfo.call(this);
 
     info.generated = this.generated;
     return info;
   }
+  */
 
   Source.prototype.tick = function(world) {
     if(this.generated > 0){

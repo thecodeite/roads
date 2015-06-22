@@ -1,87 +1,92 @@
 define(function () {
   
-  return function Dijkstra(world){
+  function Dijkstra(world){
     var that = this;
 
     this.world = world;
+  }
+  
+  Dijkstra.prototype.routeBetween = function (start, end) {
 
-    this.routeBetween = function (start, end) {
-      //console.log('start', start);
-      //console.log('end', end);
-      var sptSet = new Object();
-      var edgeSet = {};
+    var sptSet = this.calcSpt(start);
+    var sptEnd = sptSet[end.id];
 
-      sptSet[start.id] = {distance: 0, route: [], fixed: true, node: start};
+    return sptEnd.route;
+  }
 
-      calcNextSpt(sptSet[start.id]);
+  function sortByLength(a, b) {
+    return a.length - b.length;
+  }
 
-      var sptEnd = sptSet[end.id];
+  Dijkstra.prototype.calcSpt = function (start, end) {
+    
+    var sptSet = {};
+    var edgeSet = {};
 
-      return sptEnd.route;
+    sptSet[start.id] = {distance: 0, route: [], fixed: true, node: start};
 
-      function calcNextSpt(thisSpt) {
-        //console.log('thisSpt', thisSpt);
+    calcNextSpt(sptSet[start.id]);
 
-        // Add new liks
-        thisSpt.node.outbound.forEach(function(e) {
-          edgeSet[e.start.id+','+e.end.id] = e;
+    return sptSet;
 
-          var newSpd = {
-            distance: e.length + thisSpt.distance + e.space.reduce(function(p,c){
-              if(c.car && c.car.stopped) p += 30;
-              return p;
-            }, 0), 
-            node: e.end,
-            route: thisSpt.route.concat(e)
-          };
+    function calcNextSpt(thisSpt) {
+      //console.log('thisSpt', thisSpt);
 
-          //console.log('e', e);
-          if(!sptSet[e.end.id]) {
-            sptSet[e.end.id] = newSpd
-          } else if(newSpd.distance < sptSet[e.end.id].distance) {
-            sptSet[e.end.id] = newSpd
-          }
-        });
+      // Add new liks
+      thisSpt.node.outbound.forEach(function(e) {
+        edgeSet[e.start.id+','+e.end.id] = e;
 
-        var next = null;
+        var newSpd = {
+          distance: e.length + thisSpt.distance + e.space.reduce(function(p,c){
+            if(c.car && c.car.stopped) p += 30;
+            return p;
+          }, 0), 
+          node: e.end,
+          route: thisSpt.route.concat(e)
+        };
 
-        //console.log('keys', Object.keys(sptSet));
-        Object.keys(sptSet).forEach(function(k) {
-          var spt = sptSet[k];
-          //console.log('k, sptSet[k]', k, sptSet[k]);
+        //console.log('e', e);
+        if(!sptSet[e.end.id]) {
+          sptSet[e.end.id] = newSpd
+        } else if(newSpd.distance < sptSet[e.end.id].distance) {
+          sptSet[e.end.id] = newSpd
+        }
+      });
 
-          if(spt.fixed) return;
+      var next = null;
 
-          if(!next) {
-            next = spt;
-            return;
-          }
+      //console.log('keys', Object.keys(sptSet));
+      Object.keys(sptSet).forEach(function(k) {
+        var spt = sptSet[k];
+        //console.log('k, sptSet[k]', k, sptSet[k]);
 
-          if(spt.distance < next.distance) {
-            next = spt;
-          }
-        });
+        if(spt.fixed) return;
 
-        if(next == null) {
+        if(!next) {
+          next = spt;
           return;
         }
 
-        next.fixed = true;
-
-        if(next.node == end) {
-          return;
+        if(spt.distance < next.distance) {
+          next = spt;
         }
-        
-        //console.log('next', next);
-        calcNextSpt(next);
-      
+      });
+
+      if(next == null) {
+        return;
       }
-    }
 
+      next.fixed = true;
 
-
-    function sortByLength(a, b) {
-      return a.length - b.length;
+      if(next.node == end) {
+        return;
+      }
+      
+      //console.log('next', next);
+      calcNextSpt(next);
+    
     }
   };
+
+  return Dijkstra;
 });

@@ -1,7 +1,11 @@
 define(["Dijkstra"], function (Dijkstra) {
   return function Car(startNode, world, targetName) {
+    var logger = function() {
+      //console.log.apply(console, arguments);
+    }
+
     var that = this;
-    
+    logger('Care created. Starting on', startNode);
 
     this.edge = null;
     this.node = startNode;
@@ -14,49 +18,74 @@ define(["Dijkstra"], function (Dijkstra) {
     this.colour = getRandomColor();
     that.currentSpace = startNode;
 
-    
+    var dijkstra = new Dijkstra(world);
+    var routes = dijkstra.calcSpt(startNode);
 
-    that.target = pickTarget();
+    var possibleTargets = Object.keys(routes).map(function (id) {
+      var route = routes[id];
+      return route.node;
+    });
+
+    that.target = pickTarget(possibleTargets);
+
     that.colour = that.target.colour;
 
-    function pickTarget() {
-      
+    var total = 0;
+    //that.route = pickRoute(that.target);
+   
+    //that.route = dijkstra.routeBetween(startNode, that.target);
+    //console.log('Select route', routes, that.target.id)
+    that.route = routes[that.target.id].route;
+
+    that.nextEdgeOnRoute = 0;
+
+    function pickTarget(possibleTargets) {
+     
       if(typeof(targetName) == 'string') {
-        var term =  world.terminusList.find(function(t){
+        var term =  possibleTargets.find(function (t) {
           if(t.name === targetName){
             return t;
           }
         });
 
-        if(term) return term;
+        if(term) {
+          //console.log('Picked target by name');
+          return term;
+        }
       } else if(targetName && targetName.constructor === Array) {
         var targets = [];
         targetName.forEach(function(tName){
-          var term =  world.terminusList.find(function(t){
-            if(t.name === tName){
-              return t;
-            }
+          //console.log('looking for ', tName, 'in', possibleTargets);
+          var term =  possibleTargets.find(function(t){
+            return t.name === tName;
           });
 
-          if(term) targets.push(term);
+          if(term) {
+            targets.push(term);
+          }
         });
         //console.log('targets', targets)
 
         if(targets.length > 0) {
           var picketTarget = targets[~~(Math.random() * targets.length)];
           //console.log('picketTarget', picketTarget);
+          //console.log('Picked target by random name');
           return picketTarget
+        } else {
+          //console.log('Had targets but couldnt find any');
         }
       }
 
-      return world.terminusList[~~(Math.random() * world.terminusList.length)];
+      var index = possibleTargets.indexOf(startNode);
+      var nodes = possibleTargets.slice();
+      if(index != -1) {
+        nodes.splice(index, 1);
+      }
+      //console.log('Picked at random', nodes);
+      return nodes[~~(Math.random() * nodes.length)];
     }
 
-   var total = 0;
-    //that.route = pickRoute(that.target);
-    var dijkstra = new Dijkstra(world);
-    that.route = dijkstra.routeBetween(startNode, that.target);
-    that.nextEdgeOnRoute = 0;
+    
  
 
     function pickRoute() {
@@ -136,40 +165,40 @@ define(["Dijkstra"], function (Dijkstra) {
     }
 
 
+    
+    //this.log = function(){};
 
     this.tick = function(world) {
-
+      logger('Starting tick. I am on', that.node, that.edge);
+      //console.log(this.x, this.y)
       if(that.broken) {
+        logger('I am broke');
         return;
       }
 
-      if(that.stopped){
+      if(that.stopped) {
         that.stopped = false;
         return;
       }
 
       if(that.node) {
-        //console.debug('On node', that.node);
+        //console.debug('On node', that.node, that.target);
 
         if(that.target){
-          if(that.target == that.node){
+          if(that.target === that.node) {
+            //console.debug('Delete me!');
             that.node.car = null;
-            var i = world.elements.indexOf(that);
+            var i = world.entities.indexOf(that);
             if(i != -1) {
-              world.elements.splice(i, 1);
+              world.entities.splice(i, 1);
             }
+            logger('Reached target, removing from world');
             return;
           }
-        } else if(that.node.action === 'terminate') {
-          that.node.car = null;
-          var i = world.elements.indexOf(that);
-          if(i != -1) {
-            world.elements.splice(i, 1);
-          }
-          return;
         }
 
         if(that.node.outbound.length === 0) {
+          logger('Nowhere to go');
           return;
         }
 
@@ -193,7 +222,7 @@ define(["Dijkstra"], function (Dijkstra) {
         }  
 
         if(space.car) {
-          //console.debug('Cant move to space, its full');
+          console.debug('Cant move to space, its full', edgeToMoveTo);
           that.stopped = true;
           return;
         } else {
@@ -217,6 +246,7 @@ define(["Dijkstra"], function (Dijkstra) {
           if(space.car) {
             //console.debug('Cant move to next space, its full');
             that.stopped = true;
+            logger('Cant move to next space, its full', that.edge);
             return;
           }
 
@@ -234,7 +264,7 @@ define(["Dijkstra"], function (Dijkstra) {
           var nextNode = that.edge.end;
 
           if(nextNode.car) {
-            //console.debug('Cant move to edge, its full');
+            console.debug('Cant move to edge, its full', nextNode);
             that.stopped = true;
             return;
           }

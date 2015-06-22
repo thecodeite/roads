@@ -1,13 +1,10 @@
-requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", "render", "load", "server-access", "ui", "eventBroker"], 
-  function(Node, Source, Terminus, Car, Edge, JsonFormater, math, render, load, serverAccess, ui, eventBroker) {
+requirejs(["world", "math", "render", "load", "server-access", "ui", "eventBroker", "factory"], 
+  function(world, math, render, load, serverAccess, ui, eventBroker, factory) {
 
   var canvas = document.getElementById('main-canvas');
 
-
   var context = canvas.getContext("2d");
-  var formatter = new JsonFormater();
 
-  var world = load.world; 
   ui(canvas, world);
   
 
@@ -15,7 +12,7 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", 
   loadFromServer();
 
   world.playing = true;
-  //world.playPause();
+  //playPause();
 
   document.getElementById('btn-load').addEventListener("click", loadFromServer);
   document.getElementById('btn-save').addEventListener("click", saveToServer);
@@ -61,26 +58,12 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", 
 
   setInterval(function() {
     render(canvas, context, world);
-    if(world.playPause) {
-      doTick(world.elements);
+    if(world.playing) {
+      doTick();
     }
-    updateUi();
+    eventBroker.dispatch(eventBroker.TICK);
   }, 100);
 
-  eventBroker.on(eventBroker.NODE_SELECTED, function(e){
-    world.selected = e.detail;
-    document.getElementById('selected-data').innerHTML = formatter.format(world.selected && world.selected.getInfo());
-  });
-
-  eventBroker.on(eventBroker.NODE_HOVER, function(e){
-    world.over = e.detail;
-    document.getElementById('hover-data').innerHTML = formatter.format(world.over && world.over.getInfo());
-  });
-
-  function updateUi() {
-    document.getElementById('selected-data').innerHTML = formatter.format(world.selected && world.selected.getInfo());
-    document.getElementById('hover-data').innerHTML = formatter.format(world.over && world.over.getInfo());
-  }
 
   world.playPause = playPause;
   function playPause() {
@@ -89,17 +72,17 @@ requirejs(["Node", "Source", "Terminus", "Car", "Edge", "JsonFormater", "math", 
   }
 
   function tick() {
-    doTick(world.elements);
+    doTick();
   }
 
-  
+  function doTick() {
+    var allElements = world.nodes.concat(world.edges).concat(world.entities);
 
-  function doTick(elements) {
-    elements.forEach(function(e) {
+    allElements.forEach(function(e) {
       if(e.tick && world.playing) e.tick(world);
     });
 
-    elements.forEach(function(e) {
+    allElements.forEach(function(e) {
       if(e.tick2 && world.playing) e.tick2(world);
     });
 

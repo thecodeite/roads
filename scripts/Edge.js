@@ -1,6 +1,9 @@
 define(function () {
+  var guidProgress = 1000;
+
   function Edge (start, end) {
     var that = this;
+    this.guid = guidProgress++;
 
     this.start = start;
     this.end = end;
@@ -29,6 +32,7 @@ define(function () {
 
   Edge.prototype.getInfo = function() {
     return {
+      guid: this.guid,
       start: this.start.x+','+this.start.y,
       end: this.end.x+','+this.end.y
     };

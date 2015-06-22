@@ -1,13 +1,7 @@
-define(["Node", "Source", "Terminus", "Edge", "Car", "JsonFormater", "math"], 
-function (Node, Source, Terminus, Edge, Car, JsonFormater, math) {
+define(["Node", "Edge", "Car", "JsonFormater", "math", "world"], 
+function (Node, Edge, Car, JsonFormater, math, world) {
   
   var formatter = new JsonFormater();
-
-  this.world = {
-    elements: [],
-    terminusList: [], 
-    selected: null
-  };
 
   function loadRandom() {
 
@@ -107,7 +101,7 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater, math) {
   }
 
   function loadData(resetElements, data) {
-    
+
     if(!data){
       data = document.getElementById('map-data').value;
 
@@ -116,22 +110,26 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater, math) {
     }
     
     if(resetElements) {
-      this.world.elements.length = 0;
-      this.world.terminusList.length = 0;
+      world.nodes.length = 0;
+      world.edges.length = 0;
+      world.entities.length = 0;
     }
 
     var id = 0;
     data.nodes.forEach(function(node){
       if(node.t == 's'){
-        node.node = new Source(node);
+        //node.node = new Source(node);
       } else if(node.t == 'n'){
-        node.node = new Node(node);
+        //node.node = new Node(node);
       } else if(node.t == 't'){
-        node.node = new Terminus(node);
-        if(resetElements) this.world.terminusList.push(node.node);
+        //node.node = new Terminus(node);
+        //if(resetElements) world.terminusList.push(node.node);
       }
+
+      node.node = new Node(node);
+
       node.node.id = ""+(id++);
-      if(resetElements) this.world.elements.push(node.node);
+      if(resetElements) world.nodes.push(node.node);
     });
 
     data.edges.forEach(function(edgeData){
@@ -142,7 +140,7 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater, math) {
       var edge = new Edge(s, e);
 
       edge.data = edgeData;
-      if(resetElements) this.world.elements.push(edge);
+      if(resetElements) world.edges.push(edge);
     });
 
     data.nodes.forEach(function(node){ delete node.node;});
@@ -155,15 +153,15 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater, math) {
     loadData(true);
   }
 
-  function loadAndReset(){
+  function loadAndReset() {
     loadData(true);
   }
 
-  function loadAndDontReset(){
+  function loadAndDontReset() {
     loadData(false);
   }
 
-  function context(callback){
+  function context(callback) {
      var data = new Function("return "+document.getElementById('map-data').value)();
      callback(data);
      document.getElementById('map-data').value = formatter.format(data);
@@ -175,8 +173,6 @@ function (Node, Source, Terminus, Edge, Car, JsonFormater, math) {
 
 
   return {
-    world: this.world,
-
     loadRandom: loadRandom,
     loadData: loadData,
     clear: clear,

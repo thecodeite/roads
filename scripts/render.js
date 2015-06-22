@@ -1,5 +1,5 @@
-define(["Node", "Source", "Terminus", "Edge", "Car"], 
-  function (Node, Source, Terminus, Edge, Car) {
+define(["Node", "Edge", "Car"], 
+  function (Node, Edge, Car) {
   
 
   function drawCircle(context, fill, x, y, size){
@@ -13,16 +13,16 @@ define(["Node", "Source", "Terminus", "Edge", "Car"],
   }
 
   function render(canvas, context, world) {
-    var elements = world.elements;
+
 
     canvas.width = canvas.width;
     
     var renderE = function(e) {
 
-      if(e instanceof Source || e instanceof Terminus) {
-        context.strokeStyle = "#000";
-        context.strokeRect(e.x-3.5, e.y-3.5, 7, 7);
-      }
+      context.lineWidth = 1;
+      context.strokeStyle = "#000";
+      //context.strokeRect(e.x-3.5, e.y-3.5, 7, 7);
+      
 
       if(e.selected) {
         context.strokeStyle = "#0f0";
@@ -50,24 +50,43 @@ define(["Node", "Source", "Terminus", "Edge", "Car"],
         }
       } else if (e.start && e.end) {
 
-        context.moveTo(e.start.x, e.start.y);
-        context.lineTo(e.end.x, e.end.y);
+        context.beginPath();
         if(e == world.over){
           context.strokeStyle = "#333";
+          context.lineWidth = 3;
         } else {
           context.strokeStyle = "#eee";
         }
+        context.moveTo(e.start.x, e.start.y);
+        context.lineTo(e.end.x, e.end.y);
+
         context.stroke();
       }
     };
 
-    elements.forEach(function(e) {
-      if(e instanceof Edge) renderE(e);
-    });
+    function renderEntity(e) {
+      context.lineWidth = 1;
+      context.strokeStyle = "#000";
+      context.fillStyle = e.colour;
+      
+      drawCircle(context, true, e.x, e.y, 2);
+    }
 
-     elements.forEach(function(e) {
-      if(!(e instanceof Edge)) renderE(e);
-    });
+    var cha = 5;
+    var chb = 4;
+    context.beginPath();
+    context.moveTo(world.hx-cha, world.hy-0.5);
+    context.lineTo(world.hx+chb, world.hy-0.5);
+    context.moveTo(world.hx-0.5, world.hy-cha);
+    context.lineTo(world.hx-0.5, world.hy+chb);
+    context.stroke();
+    
+
+    world.edges.forEach(renderE);
+
+    world.nodes.forEach(renderE);
+
+    world.entities.forEach(renderEntity);
   }
 
   return render;
