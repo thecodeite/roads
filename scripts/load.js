@@ -107,6 +107,8 @@ function (Node, Edge, Car, JsonFormater, math, world) {
 
       /*jslint evil: true */
       data = new Function("return "+data)();
+    } else {
+      document.getElementById('map-data').value = formatter.format(data);
     }
     
     if(resetElements) {
@@ -136,11 +138,22 @@ function (Node, Edge, Car, JsonFormater, math, world) {
       
       var s = data.nodes[edgeData.s].node;
       var e = data.nodes[edgeData.e].node;
+      var isTwin = edgeData.bi !== false;
       //console.log(edge, s, e);
-      var edge = new Edge(s, e);
+      var edge = new Edge(s, e, isTwin);
 
       edge.data = edgeData;
       if(resetElements) world.edges.push(edge);
+
+      if(isTwin) {
+        var otherEdge = new Edge(e, s, isTwin);
+
+        otherEdge.data = edgeData;
+        if(resetElements) world.edges.push(otherEdge);
+
+        otherEdge.twin = edge;
+        edge.twin = otherEdge;
+      }
     });
 
     data.nodes.forEach(function(node){ delete node.node;});

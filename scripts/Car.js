@@ -145,7 +145,7 @@ define(["Dijkstra"], function (Dijkstra) {
             throw('TOOOO Deep!');
           }
           //console.log(depth);
-          if(nextLink.end){
+          if(nextLink.end) {
             continueRoute(nextLink.end);
           }
           depth--;

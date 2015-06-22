@@ -48,21 +48,33 @@ define(["Node", "Edge", "Car"],
         } else {
           context.strokeRect(e.x-2.5, e.y-2.5, 5, 5);
         }
-      } else if (e.start && e.end) {
+      }
+    };
+
+    function renderEdge(e) {
+      
+      if (e.start && e.end) {
 
         context.beginPath();
         if(e == world.over){
           context.strokeStyle = "#333";
-          context.lineWidth = 3;
+          context.lineWidth = 6;
         } else {
+          context.lineWidth = 5;
           context.strokeStyle = "#eee";
         }
-        context.moveTo(e.start.x, e.start.y);
-        context.lineTo(e.end.x, e.end.y);
 
+        if(e.twin){
+          context.moveTo(e.sxo, e.syo);
+          context.lineTo(e.exo, e.eyo);
+        } else {
+          context.moveTo(e.sx, e.sy);
+          context.lineTo(e.ex, e.ey);
+        }
+        
         context.stroke();
       }
-    };
+    }
 
     function renderEntity(e) {
       context.lineWidth = 1;
@@ -82,7 +94,7 @@ define(["Node", "Edge", "Car"],
     context.stroke();
     
 
-    world.edges.forEach(renderE);
+    world.edges.forEach(renderEdge);
 
     world.nodes.forEach(renderE);
 
