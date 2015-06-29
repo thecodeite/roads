@@ -65,5 +65,6 @@ app.use(function (req, res) {
   res.status(405).json({error:"No routes found matching path and verb"});
 })
 
-
-app.listen(8009);
+var port = process.env.PORT || 8009;
+console.log('Listening on port', port);
+app.listen(port);
