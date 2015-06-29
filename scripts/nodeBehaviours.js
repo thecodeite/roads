@@ -4,7 +4,8 @@ define(['eventBroker'], function (eventBroker) {
 
   function source(node, properties) {
     //console.log('Add source behaviout to node', node);
-    node.colour = '#00ff00';
+    //if(node.colour === '#000000')
+      //node.colour = '#00ff00';
 
     var tickFunction = function (world) {
       if(node.generated > 0) {
@@ -38,7 +39,7 @@ define(['eventBroker'], function (eventBroker) {
         //world.entities.push(car);
 
         //console.log('Made car', world);
-        node.generated = 50; ///Math.random()*10;
+        node.generated = 3; ///Math.random()*10;
       }
     }
 

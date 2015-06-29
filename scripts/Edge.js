@@ -18,11 +18,13 @@ define(function () {
 
     var realLength = Math.sqrt((dx*dx)+(dy*dy))
 
-    var offSet = 4;
-    this.sxo = sx + (-dy / realLength * offSet);
-    this.syo = sy + ( dx / realLength * offSet);
-    this.exo = ex + (-dy / realLength * offSet);
-    this.eyo = ey + ( dx / realLength * offSet);
+    if(isTwin) {
+      var offset = 4;
+      this.sx = sx + (-dy / realLength * offset);
+      this.sy = sy + ( dx / realLength * offset);
+      this.ex = ex + (-dy / realLength * offset);
+      this.ey = ey + ( dx / realLength * offset);
+    }
 
     this.length = ~~(realLength/6);
 
@@ -33,13 +35,10 @@ define(function () {
 
     this.space = [];
 
-    var spx = isTwin?this.sxo:this.sx;
-    var spy = isTwin?this.syo:this.sy;
-
     for(var i=1; i<this.length; i++){
       that.space[i-1] = {
-        x: spx + ((dx*i)/this.length),
-        y: spy + ((dy*i)/this.length),
+        x: this.sx + ((dx*i)/this.length),
+        y: this.sy + ((dy*i)/this.length),
         car: null
       };
     }

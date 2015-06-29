@@ -85,75 +85,6 @@ define(["Dijkstra"], function (Dijkstra) {
       return nodes[~~(Math.random() * nodes.length)];
     }
 
-    
- 
-
-    function pickRoute() {
-
-      var bestRoute = {
-        route:[],
-        length: 999999999
-      };
-      var currentRoute = [];
-      var nodesVisited = [];
-
-      var depth = 0;
-      continueRoute(startNode)
-
-      //console.log(bestRoute);
-      //console.log('car created');
-      return bestRoute.route;
-     
-
-      function continueRoute(currentNode) {
-        if(nodesVisited.indexOf(currentNode) != -1){
-          return;
-        }
-        nodesVisited.push(currentNode);
-
-
-        console.log('continueRoute', depth, total++);
-
-        if(total > 10000){
-            throw('TOOOO Deep!');
-          }
-        if(currentNode == that.target) {
-          var newRoute = currentRoute.slice();
-          var length = 0;
-          newRoute.forEach(function(edge){
-            length += edge.length;
-          }); 
-
-          if(length < bestRoute.length) {
-            bestRoute.length = length;
-            bestRoute.route = newRoute;
-          }
-        }
-
-        var endPoints = currentNode.outbound;
-
-        for(var idx in endPoints) {
-          var nextLink = endPoints[idx];
-          
-          if(currentRoute.indexOf(nextLink) != -1){
-            break;
-          }
-
-          currentRoute.push(nextLink);
-          depth++;
-          if(depth > 100){
-            throw('TOOOO Deep!');
-          }
-          //console.log(depth);
-          if(nextLink.end) {
-            continueRoute(nextLink.end);
-          }
-          depth--;
-          currentRoute.pop();
-        }
-        nodesVisited.pop();
-      }
-    }
 
     function getRandomColor() {
       var letters = '0123456789A'.split('');
@@ -246,7 +177,7 @@ define(["Dijkstra"], function (Dijkstra) {
           if(space.car) {
             //console.debug('Cant move to next space, its full');
             that.stopped = true;
-            logger('Cant move to next space, its full', that.edge);
+            //logger('Cant move to next space, its full', that.edge);
             return;
           }
 
@@ -264,7 +195,7 @@ define(["Dijkstra"], function (Dijkstra) {
           var nextNode = that.edge.end;
 
           if(nextNode.car) {
-            console.debug('Cant move to edge, its full', nextNode);
+            //console.debug('Cant move to edge, its full', nextNode);
             that.stopped = true;
             return;
           }

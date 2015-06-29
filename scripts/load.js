@@ -18,14 +18,35 @@ function (Node, Edge, Car, JsonFormater, math, world) {
         newNode = {
           t: types[~~(Math.random() * types.length)], 
           x: 25 + 25*~~(Math.random() * 15),
-          y: 25 + 25*~~(Math.random() * 15)
+          y: 25 + 25*~~(Math.random() * 15),
+          connection: 0
         };
+
+        //if(newNode.t == 's'){
+        //  newNode.b = {s:""};
+        //}
       }
       while(data.nodes.some(function(n){return n.x == newNode.x && n.y == newNode.y;}))
 
-      
+
       data.nodes.push(newNode);
     }
+
+    var t = 0;
+    var targets = [];
+    data.nodes.forEach(function(n){
+      if(Math.random() > 0.9){
+        n.name = 'n'+ (t++);
+        targets.push(n.name);
+        n.colour = '#'+(~~(0xFFFFFF * Math.random())).toString(16)
+      }
+    });
+
+    data.nodes.forEach(function(n){
+      if(Math.random() > 0.9){
+        n.b = {s:"d:"+targets.join(',')};
+      }
+    });
 
     var allEdges = [];
     data.nodes.forEach(function(outer) {
@@ -67,11 +88,17 @@ function (Node, Edge, Car, JsonFormater, math, world) {
 
       if(!intersects) {
         goodEdges.push(e);
+        e.s.connection++;
+        e.e.connection++;
       }
     });
 
-    if(true) allEdges.forEach(function(e){
+    if(true) allEdges.forEach(function(e) {
       //console.debug('o', e);
+
+      if(e.s.connection > 4) return;
+      if(e.e.connection > 4) return;
+
       var intersects = goodEdges.some(function(eg) {
         //console.debug('i', eg);
         return math.lineIntersect(
@@ -79,19 +106,23 @@ function (Node, Edge, Car, JsonFormater, math, world) {
           e.e.x, e.e.y,  
 
           eg.s.x, eg.s.y,  
-          eg.e.x, eg.e.y)
+          eg.e.x, eg.e.y) || (e.s == eg.e && e.e == eg.s);
       });
 
       if(!intersects) {
         goodEdges.push(e);
+        e.s.connection++;
+        e.e.connection++;
       }
+    
     });
 
 
     data.edges = goodEdges.map(function(e){
       return {
         s: data.nodes.indexOf(e.s),
-        e: data.nodes.indexOf(e.e)
+        e: data.nodes.indexOf(e.e),
+        bi: (Math.random() > 0.9)?true:false
       }
     });
 
@@ -139,6 +170,9 @@ function (Node, Edge, Car, JsonFormater, math, world) {
       var s = data.nodes[edgeData.s].node;
       var e = data.nodes[edgeData.e].node;
       var isTwin = edgeData.bi !== false;
+      var lanes = edgeData.l || 1;
+
+     
       //console.log(edge, s, e);
       var edge = new Edge(s, e, isTwin);
 
@@ -154,6 +188,7 @@ function (Node, Edge, Car, JsonFormater, math, world) {
         otherEdge.twin = edge;
         edge.twin = otherEdge;
       }
+      
     });
 
     data.nodes.forEach(function(node){ delete node.node;});

@@ -64,13 +64,11 @@ define(["Node", "Edge", "Car"],
           context.strokeStyle = "#eee";
         }
 
-        if(e.twin){
-          context.moveTo(e.sxo, e.syo);
-          context.lineTo(e.exo, e.eyo);
-        } else {
-          context.moveTo(e.sx, e.sy);
-          context.lineTo(e.ex, e.ey);
-        }
+        
+
+        context.moveTo(e.sx, e.sy);
+        context.lineTo(e.ex, e.ey);
+        
         
         context.stroke();
       }
@@ -84,6 +82,12 @@ define(["Node", "Edge", "Car"],
       drawCircle(context, true, e.x, e.y, 2);
     }
 
+    world.edges.forEach(renderEdge);
+
+    world.nodes.forEach(renderE);
+
+    world.entities.forEach(renderEntity);
+
     var cha = 5;
     var chb = 4;
     context.beginPath();
@@ -94,11 +98,7 @@ define(["Node", "Edge", "Car"],
     context.stroke();
     
 
-    world.edges.forEach(renderEdge);
-
-    world.nodes.forEach(renderE);
-
-    world.entities.forEach(renderEntity);
+   
   }
 
   return render;

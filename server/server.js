@@ -1,7 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
-var db = require('monk')('localhost/roundabout')
+var connectionString = process.env.MONGODB || 'mongodb://localhost/roads';
+var db = require('monk')(connectionString);
 
 var app = express();
 
