@@ -2,7 +2,7 @@ define(["Dijkstra"], function (Dijkstra) {
   return function Car(startNode, world, targetName) {
     var logger = function() {
       //console.log.apply(console, arguments);
-    }
+    };
 
     var that = this;
     logger('Care created. Starting on', startNode);
@@ -70,7 +70,7 @@ define(["Dijkstra"], function (Dijkstra) {
           var picketTarget = targets[~~(Math.random() * targets.length)];
           //console.log('picketTarget', picketTarget);
           //console.log('Picked target by random name');
-          return picketTarget
+          return picketTarget;
         } else {
           //console.log('Had targets but couldnt find any');
         }
@@ -172,7 +172,7 @@ define(["Dijkstra"], function (Dijkstra) {
        
         if(nextProgress < that.edge.space.length) {
           //console.debug('In middle of edge');
-          var space = that.edge.space[nextProgress];
+          space = that.edge.space[nextProgress];
 
           if(space.car) {
             //console.debug('Cant move to next space, its full');
@@ -200,7 +200,7 @@ define(["Dijkstra"], function (Dijkstra) {
             return;
           }
 
-          var lastSpace = that.edge.space[that.progress];
+          lastSpace = that.edge.space[that.progress];
           that.progress = 0;
           
           that.x = nextNode.x;

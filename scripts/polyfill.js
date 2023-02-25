@@ -1,6 +1,6 @@
 if (!Array.prototype.find) {
   Array.prototype.find = function(predicate) {
-    if (this == null) {
+    if (!this) {
       throw new TypeError('Array.prototype.find called on null or undefined');
     }
     if (typeof predicate !== 'function') {
@@ -27,7 +27,7 @@ if (!Array.prototype.some) {
   Array.prototype.some = function(fun/*, thisArg*/) {
     'use strict';
 
-    if (this == null) {
+    if (!this) {
       throw new TypeError('Array.prototype.some called on null or undefined');
     }
 
@@ -54,7 +54,7 @@ if (!Array.prototype.some) {
 if (!Array.prototype.reduce) {
   Array.prototype.reduce = function(callback /*, initialValue*/) {
     'use strict';
-    if (this == null) {
+    if (!this) {
       throw new TypeError('Array.prototype.reduce called on null or undefined');
     }
     if (typeof callback !== 'function') {

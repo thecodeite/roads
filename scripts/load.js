@@ -5,129 +5,127 @@ function (Node, Edge, Car, JsonFormater, math, world) {
 
   function loadRandom() {
 
+    context(function (data) {
+      data.nodes.length = 0;
+      for(var i=0; i<50; i++) {
+        var types = ['n', 'n', 'n', 's', 't'];
+        var tries = 100;
+        var newNode;
+        do {
+          if(tries-- < 0) break;
 
-    var data = new Function("return "+document.getElementById('map-data').value)();
-    data.nodes.length = 0;
-    for(var i=0; i<50; i++) {
-      var types = ['n', 'n', 'n', 's', 't'];
-      var tries = 100;
-      var newNode;
-      do {
-        if(tries-- < 0) break;
+          newNode = {
+            t: types[~~(Math.random() * types.length)], 
+            x: 25 + 25*~~(Math.random() * 15),
+            y: 25 + 25*~~(Math.random() * 15),
+            connection: 0
+          };
 
-        newNode = {
-          t: types[~~(Math.random() * types.length)], 
-          x: 25 + 25*~~(Math.random() * 15),
-          y: 25 + 25*~~(Math.random() * 15),
-          connection: 0
-        };
+          //if(newNode.t == 's'){
+          //  newNode.b = {s:""};
+          //}
+        }
+        while(data.nodes.some(function(n){return n.x == newNode.x && n.y == newNode.y;}))
 
-        //if(newNode.t == 's'){
-        //  newNode.b = {s:""};
-        //}
+
+        data.nodes.push(newNode);
       }
-      while(data.nodes.some(function(n){return n.x == newNode.x && n.y == newNode.y;}))
+
+      var t = 0;
+      var targets = [];
+      data.nodes.forEach(function(n){
+        if(Math.random() > 0.9){
+          n.name = 'n'+ (t++);
+          targets.push(n.name);
+          n.colour = '#'+(~~(0xFFFFFF * Math.random())).toString(16)
+        }
+      });
+
+      data.nodes.forEach(function(n){
+        if(Math.random() > 0.9){
+          n.b = {s:"d:"+targets.join(',')};
+        }
+      });
+
+      var allEdges = [];
+      data.nodes.forEach(function(outer) {
+        data.nodes.forEach(function(inner) {
+          if(outer !== inner) {
+            allEdges.push({
+              s: outer,
+              e: inner,
+              length: (outer.x - inner.x) * (outer.x - inner.x) + 
+                (outer.y - inner.y) * (outer.y - inner.y)
+            });
+          }
+        });
+      });
+
+      if(true) allEdges = allEdges
+        .filter(function(x){
+          return x.length < 200*200;
+        })
+        .sort(function(a, b){
+          return a.length - b.length;
+        });
+
+      var goodEdges = [];
+
+      if (true) [1,2,3,4,5].forEach(function(i) {
+        var e = allEdges.splice(~~(allEdges.length*Math.random()), 1)[0];
 
 
-      data.nodes.push(newNode);
-    }
+        var intersects = goodEdges.some(function(eg) {
+          //console.debug('i', eg);
+          return math.lineIntersect(
+            e.s.x, e.s.y,  
+            e.e.x, e.e.y,  
 
-    var t = 0;
-    var targets = [];
-    data.nodes.forEach(function(n){
-      if(Math.random() > 0.9){
-        n.name = 'n'+ (t++);
-        targets.push(n.name);
-        n.colour = '#'+(~~(0xFFFFFF * Math.random())).toString(16)
-      }
-    });
+            eg.s.x, eg.s.y,  
+            eg.e.x, eg.e.y)
+        });
 
-    data.nodes.forEach(function(n){
-      if(Math.random() > 0.9){
-        n.b = {s:"d:"+targets.join(',')};
-      }
-    });
+        if(!intersects) {
+          goodEdges.push(e);
+          e.s.connection++;
+          e.e.connection++;
+        }
+      });
 
-    var allEdges = [];
-    data.nodes.forEach(function(outer) {
-      data.nodes.forEach(function(inner) {
-        if(outer !== inner) {
-          allEdges.push({
-            s: outer,
-            e: inner,
-            length: (outer.x - inner.x) * (outer.x - inner.x) + 
-              (outer.y - inner.y) * (outer.y - inner.y)
-          });
+      if(true) allEdges.forEach(function(e) {
+        //console.debug('o', e);
+
+        if(e.s.connection > 4) return;
+        if(e.e.connection > 4) return;
+
+        var intersects = goodEdges.some(function(eg) {
+          //console.debug('i', eg);
+          return math.lineIntersect(
+            e.s.x, e.s.y,  
+            e.e.x, e.e.y,  
+
+            eg.s.x, eg.s.y,  
+            eg.e.x, eg.e.y) || (e.s == eg.e && e.e == eg.s);
+        });
+
+        if(!intersects) {
+          goodEdges.push(e);
+          e.s.connection++;
+          e.e.connection++;
+        }
+      
+      });
+
+
+      data.edges = goodEdges.map(function(e){
+        return {
+          s: data.nodes.indexOf(e.s),
+          e: data.nodes.indexOf(e.e),
+          bi: (Math.random() > 0.9)?true:false
         }
       });
     });
 
-    if(true) allEdges = allEdges
-      .filter(function(x){
-        return x.length < 200*200;
-      })
-      .sort(function(a, b){
-        return a.length - b.length;
-      });
-
-    var goodEdges = [];
-
-    if (true) [1,2,3,4,5].forEach(function(i) {
-      var e = allEdges.splice(~~(allEdges.length*Math.random()), 1)[0];
-
-
-      var intersects = goodEdges.some(function(eg) {
-        //console.debug('i', eg);
-        return math.lineIntersect(
-          e.s.x, e.s.y,  
-          e.e.x, e.e.y,  
-
-          eg.s.x, eg.s.y,  
-          eg.e.x, eg.e.y)
-      });
-
-      if(!intersects) {
-        goodEdges.push(e);
-        e.s.connection++;
-        e.e.connection++;
-      }
-    });
-
-    if(true) allEdges.forEach(function(e) {
-      //console.debug('o', e);
-
-      if(e.s.connection > 4) return;
-      if(e.e.connection > 4) return;
-
-      var intersects = goodEdges.some(function(eg) {
-        //console.debug('i', eg);
-        return math.lineIntersect(
-          e.s.x, e.s.y,  
-          e.e.x, e.e.y,  
-
-          eg.s.x, eg.s.y,  
-          eg.e.x, eg.e.y) || (e.s == eg.e && e.e == eg.s);
-      });
-
-      if(!intersects) {
-        goodEdges.push(e);
-        e.s.connection++;
-        e.e.connection++;
-      }
-    
-    });
-
-
-    data.edges = goodEdges.map(function(e){
-      return {
-        s: data.nodes.indexOf(e.s),
-        e: data.nodes.indexOf(e.e),
-        bi: (Math.random() > 0.9)?true:false
-      }
-    });
-
-
-    document.getElementById('map-data').value = formatter.format(data);
     loadData(true);
   }
 

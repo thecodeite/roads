@@ -7,7 +7,7 @@ define(['eventBroker'], function (eventBroker) {
     //if(node.colour === '#000000')
       //node.colour = '#00ff00';
 
-    var tickFunction = function (world) {
+    function tickFunction (world) {
       if(node.generated > 0) {
         node.generated--;
         return;

@@ -38,7 +38,7 @@ requirejs(["world", "math", "render", "load", "server-access", "ui", "eventBroke
 
         mapsList.appendChild(option);
         //console.log('mapName', mapName);
-      })
+      });
     });
   }
 

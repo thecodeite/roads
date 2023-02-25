@@ -8,7 +8,7 @@ define(["Node", "Edge", "Car"],
     context.closePath();
     context.stroke();
     if(fill){
-        context.fill()
+        context.fill();
     }
   }
 

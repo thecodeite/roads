@@ -79,14 +79,14 @@ function (Node, Edge, JsonFormater,
       world.hy = y;
 
       var over = _.find(world.nodes, function(node){
-        return node.x+5 >= x 
-        && node.x-1 <= x
-        && node.y+5 >= y 
-        && node.y-1 <= y;
+        return node.x+5 >= x && 
+          node.x-1 <= x && 
+          node.y+5 >= y && 
+          node.y-1 <= y;
       });
 
       if(!over){
-        var over = _.find(world.edges, function(edge){
+        over = _.find(world.edges, function(edge){
           if(edge.start && edge.end){
             return math.onLine(edge.start.x, edge.start.y,
               edge.end.x, edge.end.y,
@@ -109,10 +109,10 @@ function (Node, Edge, JsonFormater,
       var y = event.pageY - this.offsetTop;
 
       var clickedOn = _.find(world.nodes, function(node){
-        return node.x+5 >= x 
-        && node.x-1 <= x
-        && node.y+5 >= y 
-        && node.y-1 <= y;
+        return node.x+5 >= x &&
+          node.x-1 <= x &&
+          node.y+5 >= y &&
+          node.y-1 <= y;
       });
 
       if(clickedOn){
@@ -150,19 +150,19 @@ function (Node, Edge, JsonFormater,
     }
 
     function addEdge(start, end) {
-      var edge = new Edge(start, end)
+      var edge = new Edge(start, end);
       world.edges.push(edge);
 
       load.context(function (data) {
 
         edge.data = {
-          s: (_.findIndex(data.nodes, function (n) { return n.x ==start.x && n.y == start.y})),
-          e: (_.findIndex(data.nodes, function (n) { return n.x ==end.x && n.y == end.y}))
-        }
+          s: (_.findIndex(data.nodes, function (n) { return n.x ==start.x && n.y == start.y; })),
+          e: (_.findIndex(data.nodes, function (n) { return n.x ==end.x && n.y == end.y; }))
+        };
 
         console.log(data);
         data.edges.push(edge.data);
-      })
+      });
     }
 
     function addNode(x, y) {
@@ -171,15 +171,15 @@ function (Node, Edge, JsonFormater,
       //document.getElementById('map-data').value = formatter.format(data);
       
       var node = new Node({x:x, y:y});
-      node.data = { t:'n', x: x, y: y}
+      node.data = { t:'n', x: x, y: y};
       world.nodes.push(node);
 
       //var data = new Function("return "+document.getElementById('map-data').value)();
       load.context(function (data) {
         data.nodes.push(node.data);
-      })
+      });
       //document.getElementById('map-data').value = formatter.format(data);
     }
 
-  }
+  };
 });
